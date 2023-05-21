@@ -1,0 +1,140 @@
+<main>
+  <div class='container px-5 px-sm-0'>
+    <p id="notice"><%= flash[:notice] %></p>
+    <div class='row'>
+      <div class='col-md-3'>
+        <h2>User info</h2>
+        <table class='table'>
+          <tr>
+            <%= attachment_image_tag @evaluation.user, :profile_image, :fill, 80, 80, format: 'jpeg', fallback: "no_image.jpg", class:"rounded-circle"; %>
+          </tr>
+          <tr>
+            <th>ユーザ名</th>
+            <th><%= @evaluation.user.name %></th>
+          </tr>
+        </table>
+        <div class='row'>
+          <%= link_to edit_user_path(@evaluation.user.id), class:"btn btn-outline-secondary btn-block" do %>
+            <i class="fas fa-user-cog"></i>
+          <% end %>
+        </div>
+        <h2 class="mt-4">New post</h2>
+        <%= form_with model: Evaluation.new, local: true do |f| %>
+          <div class="form-group">
+            <%= f.label :教員名 %>
+            <%= f.text_field :teacher_name, autofocus: true, class:"form-control" %>
+          </div>
+          <div class="form-group">
+            <%= f.label :講義名 %>
+            <%= f.text_field :class_name, autofocus: true, class:"form-control" %>
+          </div>
+          <div class="form-group">
+            <div class="input-group-prepend">
+              <label class="input-group-text" for="inputGroupSelect01">鬼仏度</label>
+              <%= f.select :evaluation, Evaluation.evaluations.keys, class:"form-control" %>
+            </div>
+            <div class="input-group-prepend">
+              <label class="input-group-text" for="inputGroupSelect01">難易度</label>
+              <%= f.select :easiness, Evaluation.easinesses.keys, class:"form-control" %>
+            </div>
+            <div class="input-group-prepend">
+              <label class="input-group-text" for="inputGroupSelect01">得点期待度</label>
+              <%= f.select :expectation, Evaluation.expectations.keys, class:"form-control" %>
+            </div>
+          </div>
+          <div class="form-group">
+            <%= f.label :コメント %>
+            <%= f.text_area :comment, autofocus: true, class:"form-control" %>
+          </div>
+          <div class="form-group">
+            <%= f.submit "Create Evaluation", class:"btn btn-success" %>
+          </div>
+        <% end %>
+      </div>
+      <div class='col-md-8 offset-md-1'>
+        <h2>Evaluation detail</h2>
+        <p>投稿ユーザ：<%= link_to "#{@evaluation.user.name}", user_path(@evaluation.user.id) %></p>
+        <p>投稿日時：<%= @evaluation.created_at.strftime('%Y/%m/%d %H:%M') %></p>
+        <table class='table tb01'>
+          <thead>
+            <tr class="head">
+              <th style="width: 1%"></th>
+              <th style="width: 16%">教員名</th>
+              <th  style="width: 16%">講義名</th>
+              <th style="width: 16%"></th>
+              <th style="width: 41%">コメント</th>
+              <th  style="width: 10%"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <%= attachment_image_tag @evaluation.user, :profile_image, :fill, 40, 40, format: 'jpeg', fallback: "no_image.jpg", class:"rounded-circle"; %>
+              </td>
+              <td><%= @evaluation.teacher_name %></td>
+              <td><%= @evaluation.class_name %></td>
+               <td>
+                <ul>
+                  <li><%= @evaluation.evaluation %></li>
+                  <li><%= @evaluation.easiness %></li>
+                  <li><%= @evaluation.expectation %></li>
+                </ul>
+              </td>
+              <td><%= @evaluation.comment %></td>
+              <% if @evaluation.user_id == current_user.id %>
+                <td><%= link_to "編集", edit_evaluation_path(@evaluation.id), class:"btn btn-sm btn-success" %><%= link_to "削除", evaluation_path(@evaluation.id), method: :delete, data: {confirm: "本当に削除しますか？この操作は取り消せません。"}, class:"btn btn-sm btn-danger" %></td>
+              <% end %>
+            </tr>
+          </tbody>
+        </table>
+        <div class="row">
+          <% if @evaluation.favorited_by?(current_user) %>
+            <%= link_to evaluation_favorites_path(@evaluation.id), method: :delete do %>
+              ♥<%= @evaluation.favorites.count %>いいね
+            <% end %>
+          <% else %>
+            <%= link_to evaluation_favorites_path(@evaluation.id), method: :post do %>
+              ♡<%= @evaluation.favorites.count %>いいね
+            <% end %>
+          <% end %>
+        </div>
+        <div class="row mt-3">
+          <%= @evaluation.opinions.count %>コメント
+        </div>
+        <div class="row">
+          <% @evaluation.opinions.each do |opinion| %>
+            <div class="col-2">
+              <%= attachment_image_tag opinion.user, :profile_image, :fill, 40, 40, format: 'jpeg', fallback: "no_image.jpg", class:"rounded-circle"; %>
+            </div>
+            <div class="col-10">
+              <p class="text-left">
+                <%= opinion.opinion %>
+                <% if opinion.user == current_user %>
+                  <%= link_to "コメント削除", evaluation_opinion_path(opinion.evaluation, opinion), method: :delete, data: {confirm: "コメントを削除しますか？"} %>
+                <% end %>
+              </p>
+            </div>
+          <% end %>
+        </div>
+        <div class='row mt-3 ml-0'>
+          <% if flash[:error].present? %>
+            <div id="error_explanation">
+            <h3>
+              <%= flash[:error].count %> error prohibited this object from being saved:
+            </h3>
+            <ul>
+            <% flash[:error].each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+            </ul>
+            </div>
+          <% end %>
+          <%= form_with(model:[@evaluation, @opinion], local: true) do |f| %>
+            <%= f.text_area :opinion, size: "40x5", placeholder: "コメントをここに" %>
+            <%= f.submit "送信する", class:"btn btn-secondary" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

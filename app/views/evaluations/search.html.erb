@@ -1,0 +1,62 @@
+<main>
+  <div class='container mt-3'>
+    <div class='row'>
+      <div class="col-sm-12 col-md-10 col-lg-8 px-5 px-sm-0 mx-auto">
+        <h2>Search teacher or class</h2>
+        <p><small>
+          教員名または講義名を入力してください。（部分一致可）</br>
+          ただし、︎両者を同時に検索することはできません。
+        </small></p>
+        <%= form_with url: search_evaluations_path, method: :get, local: true do |f| %>
+          <%= f.text_field :keyword %>
+          <%= f.submit "検索", class:"btn btn-secondary btn-sm"%>
+        <% end %>
+
+        <h6 class='mt-4'>「<%= @keyword %>」を含む投稿が、<%= @evaluations_count %>件見つかりました。</h6>
+        <p><small>
+          （ユーザアイコンをクリックすると、ユーザの投稿一覧画面へと遷移します。）
+        </small></p>
+
+        <% if !@evaluations.nil? %>
+          <%= paginate @evaluations %>
+        <% end %>
+        <table class='table table-hover tb01'>
+          <thead>
+            <tr class="head">
+              <th style="width: 1%"></th>
+              <th style="width: 15%">教員名</th>
+              <th style="width: 15%">講義名</th>
+              <th style="width: 16%"></th>
+              <th style="width: 45%">コメント</th>
+              <th style="width: 8%"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if !@evaluations.nil? %>
+              <% @evaluations.each do |evaluation| %>
+              <tr>
+                <td>
+                  <%= link_to user_path(evaluation.user.id) do %>
+                    <%= attachment_image_tag evaluation.user, :profile_image, :fill, 40, 40, format: 'jpeg', fallback: "no_image.jpg", class:"rounded-circle"; %>
+                  <% end %>
+                </td>
+                <td><%= evaluation.teacher_name %></td>
+                <td><%= evaluation.class_name %></td>
+                <td>
+                  <ul>
+                    <li><%= evaluation.evaluation %></li>
+                    <li><%= evaluation.easiness %></li>
+                    <li><%= evaluation.expectation %></li>
+                  </ul>
+                </td>
+                <td><%= evaluation.comment %></td>
+                <td><%= link_to "詳細", evaluation_path(evaluation.id) %></td>
+              </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>

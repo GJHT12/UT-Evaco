@@ -1,0 +1,40 @@
+        <%= paginate evaluations %>
+        <table class='table table-hover tb01'>
+          <thead>
+            <tr class="head">
+              <th style="width: 1%"></th>
+              <th style="width: 15%">教員名</th>
+              <th  style="width: 15%">講義名</th>
+              <th style="width: 16%"></th>
+              <th style="width: 45%">コメント</th>
+              <th  style="width: 8%"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% evaluations.each do |evaluation| %>
+            <tr>
+              <td>
+                <%= link_to user_path(evaluation.user.id) do %>
+                  <%= attachment_image_tag evaluation.user, :profile_image, :fill, 40, 40, format: 'jpeg', fallback: "no_image.jpg", class:"rounded-circle"; %>
+                <% end %>
+              </td>
+              <td><%= evaluation.teacher_name %></td>
+              <td><%= evaluation.class_name %></td>
+              <td>
+                <ul>
+                  <li><%= evaluation.evaluation %></li>
+                  <li><%= evaluation.easiness %></li>
+                  <li><%= evaluation.expectation %></li>
+                </ul>
+              </td>
+              <td><%= evaluation.comment %></td>
+              <td><%= link_to "詳細", evaluation_path(evaluation.id) %></td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <%= paginate evaluations %>
+      </div>
+    </div>
+  </div>
+</main>
